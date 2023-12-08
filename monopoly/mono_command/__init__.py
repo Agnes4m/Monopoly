@@ -6,73 +6,42 @@ from gsuid_core.bot import Bot
 from gsuid_core.message_models import Button
 from gsuid_core.models import Event
 from gsuid_core.sv import SV
+from gsuid_core.utils.image.image_tools import get_event_avatar
 
-from ..utils.load_data import load_test
-from ..utils.resource_path import all_test, history_path
+# from ..utils.load_data import load_mono
+# from ..utils.resource_path import all_mono, history_path
 
-sv_test_help = SV('大富翁帮助')
-sv_test_start = SV('大富翁开始')
-sv_test_hot = SV('结束游戏')
+sv_mono_help = SV('大富翁帮助')
+sv_mono_start = SV('大富翁开始游戏')
+sv_mono_hot = SV('结束游戏')
 
 
-@sv_test_help.on_fullmatch(('大富翁帮助'))
+@sv_mono_help.on_command(('大富翁帮助', "mono帮助"))
 async def send_help(bot: Bot, ev: Event):
     await bot.send_option(
-        '欢迎来到心理测试!',
-        ['热门测试', '全部测试列表', '心理测试帮助'],
+        '欢迎游玩大富翁游戏!',
+        [''],
         True,
     )
 
 
-@sv_test_help.on_fullmatch(('全部测试列表', '全部测试'))
-async def send_all_test_list(bot: Bot, ev: Event):
-    all_button_list: List[Union[Button, str]] = [
-        Button(x.name, f'开始测试{x.name}', x.name) for x in all_test
-    ]
+@sv_mono_start.on_command(('大富翁开始', "mono开始"))
+async def send_mono(bot: Bot, ev: Event):
+    usr_id = ev.user_id
+    usr_image = get_event_avatar(ev)
 
-    if len(all_button_list) >= 6:
-        button_list = all_button_list[:6]
-    else:
-        button_list = all_button_list
-
-    await bot.send_option(
-        '欢迎来到心理测试!',
-        button_list,
-        True,
-    )
-
-
-@sv_test_hot.on_fullmatch(('心理测试热门', '热门测试'))
-async def send_hot(bot: Bot, ev: Event):
-    sorted_files = sorted(
-        all_test, key=lambda x: x.stat().st_size, reverse=True
-    )
-    top_six_files = sorted_files[:6]
-    top_six_names = [str(x.name) for x in top_six_files]
-    if top_six_names == []:
-        await bot.send('目前还没有非常热门的测试噢，请@我输入 全部测试列表 查看完整测试！')
-    else:
-        await bot.send_option(
-            '以下测试非常热门噢！请选择一项吧！',
-            [Button(x, f'开始测试{x}', x) for x in top_six_names],
-        )
-
-
-@sv_test_start.on_prefix(('开始测试'))
-async def send_test(bot: Bot, ev: Event):
-    test_name = ev.text
-    test = await load_test(test_name)
-    if test is None:
+    mono = await load_mono(mono_name)
+    if mono is None:
         return await bot.send_option(
             '该测试不存在噢！请输入正确的测试名称！或者查看帮助以获得更多信息！',
             ['热门测试', '全部测试列表', '心理测试帮助'],
             True,
         )
 
-    if 'start' in test.questions:
-        start = test.questions['start']
-    elif '1' in test.questions:
-        start = test.questions['1']
+    if 'start' in mono.questions:
+        start = mono.questions['start']
+    elif '1' in mono.questions:
+        start = mono.questions['1']
     else:
         return await bot.send_option(
             '该测试不存在噢！请输入正确的测试名称！或者查看帮助以获得更多信息！',
@@ -105,7 +74,7 @@ async def send_test(bot: Bot, ev: Event):
             _point += start.answer[user_answer].point
             _key.extend(start.answer[user_answer].key)
             _path.append(user_answer)
-            start = test.questions[_to]
+            start = mono.questions[_to]
         else:
             break
 
@@ -117,9 +86,9 @@ async def send_test(bot: Bot, ev: Event):
 
     # 结束
     if _answer == 'end':
-        for _num in test.results:
+        for _num in mono.results:
             _title = _num
-            result = test.results[_num]
+            result = mono.results[_num]
             if _point >= result.point_down and _point <= result.point_up:
                 _need_key = set(result.need_key)
                 _self_key = set(_key)
@@ -128,10 +97,10 @@ async def send_test(bot: Bot, ev: Event):
                         result.detail, ['热门测试', '全部测试列表', '心理测试帮助'], True
                     )
     else:
-        for _num in test.results:
+        for _num in mono.results:
             if _num == _answer:
                 _title = _num
-                result = test.results[_num]
+                result = mono.results[_num]
                 await bot.send_option(
                     result.detail, ['热门测试', '全部测试列表', '心理测试帮助'], True
                 )
@@ -149,7 +118,7 @@ async def send_test(bot: Bot, ev: Event):
             'result': _title,
         }
 
-        path = history_path / f'{test_name}.json'
+        path = history_path / f'{mono_name}.json'
         if not path.exists():
             record = [_record]
             async with aiofiles.open(path, 'x', encoding='UTF-8') as f:
