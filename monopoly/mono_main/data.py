@@ -3,7 +3,7 @@ from typing import Dict, List
 
 from gsuid_core.data_store import get_res_path
 
-from .utils import AllData, Building, Player
+from .utils import Player, AllData, Building
 
 
 async def save_game(id: str, data: AllData):
