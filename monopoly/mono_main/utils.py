@@ -166,9 +166,14 @@ class Player(BaseModel):
                 else:
                     if self.isPlayer is True:
                         textLine0 = (
-                            self.name + '扔出了' + '%d' % self.dice_value + '点！'
+                            self.name
+                            + '扔出了'
+                            + '%d' % self.dice_value
+                            + '点！'
                         )
-                        textLine1 = '来到了ta的' + self.locatedBuilding.name + '!'
+                        textLine1 = (
+                            '来到了ta的' + self.locatedBuilding.name + '!'
+                        )
                         textLine2 = '可以加盖小房子！'
                         textLine3 = '加盖收费：%d' % building.payment
                         textLine4 = '是否加盖？'
@@ -201,7 +206,9 @@ class Player(BaseModel):
                             if self.tudishen == 1:
                                 textLine0 = self.name + '土地神附体！'
                                 textLine1 = '强占土地！'
-                                textLine2 = building.name + '现在属于' + self.name
+                                textLine2 = (
+                                    building.name + '现在属于' + self.name
+                                )
                                 self.locatedBuilding.owner = self.name
                                 self.showText = [
                                     textLine0,
@@ -225,7 +232,10 @@ class Player(BaseModel):
                                         + '点！'
                                     )
                                     textLine1 = (
-                                        self.name + '来到了' + each.name + '的:'
+                                        self.name
+                                        + '来到了'
+                                        + each.name
+                                        + '的:'
                                     )
                                     textLine2 = building.name + '，被收费!'
                                     if self.shuaishen == 1:
