@@ -2,10 +2,10 @@ import json
 from typing import Dict, List, Union
 
 import aiofiles
-from gsuid_core.bot import Bot
-from gsuid_core.message_models import Button
-from gsuid_core.models import Event
 from gsuid_core.sv import SV
+from gsuid_core.bot import Bot
+from gsuid_core.models import Event
+from gsuid_core.message_models import Button
 from gsuid_core.utils.image.image_tools import get_event_avatar
 
 # from ..utils.load_data import load_mono
@@ -79,7 +79,9 @@ async def send_mono(bot: Bot, ev: Event):
             break
 
     if _answer is None:
-        return await bot.send('回答问题超时噢, 可以重新开始测试~, @我并发送 心理测试帮助 可以获得更多信息！')
+        return await bot.send(
+            '回答问题超时噢, 可以重新开始测试~, @我并发送 心理测试帮助 可以获得更多信息！'
+        )
 
     result = None
     _title = None
@@ -94,7 +96,9 @@ async def send_mono(bot: Bot, ev: Event):
                 _self_key = set(_key)
                 if _need_key.issubset(_self_key):
                     await bot.send_option(
-                        result.detail, ['热门测试', '全部测试列表', '心理测试帮助'], True
+                        result.detail,
+                        ['热门测试', '全部测试列表', '心理测试帮助'],
+                        True,
                     )
     else:
         for _num in mono.results:
@@ -102,7 +106,9 @@ async def send_mono(bot: Bot, ev: Event):
                 _title = _num
                 result = mono.results[_num]
                 await bot.send_option(
-                    result.detail, ['热门测试', '全部测试列表', '心理测试帮助'], True
+                    result.detail,
+                    ['热门测试', '全部测试列表', '心理测试帮助'],
+                    True,
                 )
 
     if result is not None:
